@@ -2,9 +2,7 @@ name: Build Docker images for release tool versions
 
 on:
   schedule:
-  - cron: '0 0 30 2 *'
-  - cron: '0 0 30 6 *'
-  - cron: '0 0 30 10 *'
+  - cron: '0 0 28 2,6,10 *'
 
 
 jobs:
@@ -42,7 +40,7 @@ jobs:
 
     - name: tag image
       run:
-        docker tag .
+        docker tag
         "python:${{ matrix.python-image-tag }}"
         "epicwink/python-packaging-prerelease-testing:${{ matrix.python-image-tag }}"
 
