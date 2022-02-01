@@ -1,0 +1,51 @@
+name: Build Docker images for release tool versions
+
+on:
+  schedule:
+  - cron: '0 0 30 2 *'
+  - cron: '0 0 30 6 *'
+  - cron: '0 0 30 10 *'
+
+
+jobs:
+  build-image:
+    name: build Docker image
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-image-tag:
+        - '3.6'
+        - '3.7'
+        - '3.8'
+        - '3.9'
+        - '3.10'
+        - latest
+        - '3.6-slim'
+        - '3.7-slim'
+        - '3.8-slim'
+        - '3.9-slim'
+        - '3.10-slim'
+        - slim
+        - '3.6-alpine'
+        - '3.7-alpine'
+        - '3.8-alpine'
+        - '3.9-alpine'
+        - '3.10-alpine'
+        - alpine
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+
+    - name: pull image
+      run: docker pull "python:${{ matrix.python-image-tag }}"
+
+    - name: tag image
+      run:
+        docker tag .
+        "python:${{ matrix.python-image-tag }}"
+        "epicwink/python-packaging-prerelease-testing:${{ matrix.python-image-tag }}"
+
+    # TODO: uncomment
+    # - name: upload image
+    #   run: docker push "epicwink/python-packaging-prerelease-testing:${{ matrix.python-image-tag }}"

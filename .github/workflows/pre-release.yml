@@ -1,0 +1,70 @@
+name: Build Docker images for pre-release tool versions
+
+on:
+  schedule:
+  - cron: '0 0 1 2 *'
+  - cron: '0 0 1 6 *'
+  - cron: '0 0 1 10 *'
+
+
+jobs:
+  build-image:
+    name: build Docker image
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+        - python-image-tag: '3.6'
+          dist-name: debian
+        - python-image-tag: '3.7'
+          dist-name: debian
+        - python-image-tag: '3.8'
+          dist-name: debian
+        - python-image-tag: '3.9'
+          dist-name: debian
+        - python-image-tag: '3.10'
+          dist-name: debian
+        - python-image-tag: latest
+          dist-name: debian
+        - python-image-tag: '3.6-slim'
+          dist-name: debian
+        - python-image-tag: '3.7-slim'
+          dist-name: debian
+        - python-image-tag: '3.8-slim'
+          dist-name: debian
+        - python-image-tag: '3.9-slim'
+          dist-name: debian
+        - python-image-tag: '3.10-slim'
+          dist-name: debian
+        - python-image-tag: slim
+          dist-name: debian
+        - python-image-tag: '3.6-alpine'
+          dist-name: alpine
+        - python-image-tag: '3.7-alpine'
+          dist-name: alpine
+        - python-image-tag: '3.8-alpine'
+          dist-name: alpine
+        - python-image-tag: '3.9-alpine'
+          dist-name: alpine
+        - python-image-tag: '3.10-alpine'
+          dist-name: alpine
+        - python-image-tag: alpine
+          dist-name: alpine
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+
+    - name: pull image
+      run: docker pull "python:${{ matrix.python-image-tag }}"
+
+    - name: build image
+      run:
+        docker build .
+        --build-arg "_BASE=python:${{ matrix.python-image-tag }}"
+        --file "${{ matrix.dist-name }}.Dockerfile"
+        --tag "epicwink/python-packaging-prerelease-testing:${{ matrix.python-image-tag }}"
+
+    # TODO: uncomment
+    # - name: upload image
+    #   run: docker push "epicwink/python-packaging-prerelease-testing:${{ matrix.python-image-tag }}"
